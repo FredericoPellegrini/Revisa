@@ -26,9 +26,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<!-- Formulário HTML simples para login -->
-<form method="post" action="">
-    Email: <input type="email" name="email" required><br>
-    Senha: <input type="password" name="senha" required><br>
-    <button type="submit">Entrar</button>
-</form>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/login.css">
+    <title>Revisa | Login</title>
+</head>
+<body>
+
+    <div id="cad">
+        <p>Ainda não tem conta? <a href="#">cadastre-se</a></p>
+    </div>
+
+    <div class="container">
+        <div id="logo">
+            <img src="images/logo.png" alt="Logo" id="img1">
+            <img src="images/nome.png" alt="Nome Revisa" id="img2">
+        </div>
+
+        <form method="post" action="">
+            <input type="email" name="email" placeholder="E-mail" required>
+            <input type="password" name="senha" placeholder="Senha" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+</body>
+</html>
+

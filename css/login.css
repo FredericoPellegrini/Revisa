@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Ubuntu:wght@400;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    height: 100vh;
+    background-color: #2e2e2e;
+    font-family: 'Ubuntu', sans-serif;
+    color: white;
+}
+
+/* Botão de cadastro */
+#cad {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-weight: bold;
+}
+
+#cad a {
+    background-color: #D54F72;
+    padding: 12px 20px;
+    border-radius: 10px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+#cad a:hover {
+    background-color: #c84c6d;
+}
+
+.container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+}
+
+#logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+#img1 {
+    width: 200px;
+    height: auto;
+}
+
+#img2 {
+    width: 150px;
+    height: auto;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+}
+
+form input {
+    width: 350px;
+    height: 55px;
+    padding: 15px;
+    font-size: 18px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    font-weight: bold;
+}
+
+form button {
+    width: 200px;
+    height: 55px;
+    background-color: #D54F72;
+    border: none;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+form button:hover {
+    background-color: #c84c6d;
+}
