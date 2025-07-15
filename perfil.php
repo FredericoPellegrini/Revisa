@@ -62,41 +62,72 @@ if (isset($_POST['excluir_conta'])) {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <title>Perfil do Usuário</title>
+    <link rel="stylesheet" href="css/perfil.css">
 </head>
 <body>
-    <h2>Perfil de <?= htmlspecialchars($_SESSION['user_nome']) ?></h2>
 
-    <?php if (isset($msg)) echo "<p><strong>$msg</strong></p>"; ?>
+    <div class="container">
+        <div class="perfil">
+            <div class="foto"></div>
+            <h2><?= htmlspecialchars($_SESSION['user_nome']) ?></h2>
+        </div>
 
-    <form method="post">
-        <h3>Atualizar Nome/Email</h3>
-        Nome: <input type="text" name="nome" value="<?= htmlspecialchars($usuario['nome']) ?>" required><br>
-        Email: <input type="email" name="email" value="<?= htmlspecialchars($usuario['email']) ?>" required><br>
-        <button type="submit" name="atualizar_info">Salvar Alterações</button>
-    </form>
+        <?php if (isset($msg)) echo "<p class='msg'>$msg</p>"; ?>
 
-    <hr>
+        <!-- Atualizar nome/email -->
+        <form method="post" class="bloco">
+            <div class="linha">
+                <label for="nome">Nome</label>
+                <input type="text" id="nome" name="nome" value="<?= htmlspecialchars($usuario['nome']) ?>" required>
+            </div>
+            <div class="linha">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" value="<?= htmlspecialchars($usuario['email']) ?>" required>
+            </div>
+            <button type="submit" name="atualizar_info">Salvar Alterações</button>
+        </form>
 
-    <form method="post">
-        <h3>Alterar Senha</h3>
-        Senha atual: <input type="password" name="senha_atual" required><br>
-        Nova senha: <input type="password" name="nova_senha" required><br>
-        Confirmar nova senha: <input type="password" name="confirmar_senha" required><br>
-        <button type="submit" name="atualizar_senha">Alterar Senha</button>
-    </form>
+        <!-- Atualizar senha -->
+        <form method="post" class="bloco">
+            <div class="linha">
+                <label for="senha_atual">Senha Atual</label>
+                <input type="password" id="senha_atual" name="senha_atual" required>
+            </div>
+            <div class="linha">
+                <label for="nova_senha">Nova Senha</label>
+                <input type="password" id="nova_senha" name="nova_senha" required>
+            </div>
+            <div class="linha">
+                <label for="confirmar_senha">Confirmar Nova</label>
+                <input type="password" id="confirmar_senha" name="confirmar_senha" required>
+            </div>
+            <button type="submit" name="atualizar_senha">Alterar Senha</button>
+        </form>
 
-    <hr>
+        <!-- 2 Etapas -->
+        <div class="bloco">
+            <div class="linha">
+                <label>2 Etapas</label>
+                <span><a href="#">Configuração</a></span>
+            </div>
+        </div>
 
-    <form method="post" onsubmit="return confirm('Tem certeza que deseja excluir sua conta? Isso não poderá ser desfeito!');">
-        <h3>Excluir Conta</h3>
-        <button type="submit" name="excluir_conta" style="color:red;">Excluir minha conta</button>
-    </form>
+        <!-- Excluir Conta -->
+        <form method="post" class="bloco" onsubmit="return confirm('Deseja mesmo excluir sua conta?');">
+            <div class="linha">
+                <label>Gerenciar Conta</label>
+                <span><button type="submit" name="excluir_conta" class="excluir">Excluir Conta</button></span>
+            </div>
+        </form>
 
-    <hr>
-    <p><a href="dashboard.php">← Voltar para Dashboard</a> | <a href="logout.php">Sair</a></p>
+        <div class="voltar">
+            <a href="dashboard.php">← Voltar</a>
+        </div>
+    </div>
+
 </body>
 </html>

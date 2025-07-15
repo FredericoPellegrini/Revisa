@@ -37,11 +37,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<!-- Formulário HTML simples para cadastro -->
-<form method="post" action="">
-    Nome: <input type="text" name="nome" required><br>
-    Email: <input type="email" name="email" required><br>
-    Senha: <input type="password" name="senha" required><br>
-    Confirmar Senha: <input type="password" name="senha_confirm" required><br>
-    <button type="submit">Cadastrar</button>
-</form>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revisa | Cadastro</title>
+    <link rel="stylesheet" href="css/cadastro.css">
+</head>
+<body>
+
+    <div id="voltar">
+        <a href="login.php">Voltar</a>
+    </div>
+
+    <div class="container">
+        <div id="logo">
+            <img src="images/logo.png" alt="Logo" id="img1">
+            <img src="images/nome.png" alt="Nome Revisa" id="img2">
+        </div>
+
+        <form method="post" action="">
+            <input type="text" name="nome" placeholder="Nome" required>
+            <input type="email" name="email" placeholder="E-mail" required>
+            <input type="password" name="senha" placeholder="Senha" required>
+            <input type="password" name="senha_confirm" placeholder="Confirmar Senha" required>
+            <button type="submit">Cadastrar</button>
+        </form>
+    </div>
+
+</body>
+</html>

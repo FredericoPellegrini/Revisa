@@ -2,27 +2,28 @@
 session_start();
 require 'config.php';
 
+$erro = '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $senha = $_POST['senha'] ?? '';
 
     if (!$email || !$senha) {
-        die('Preencha todos os campos.');
+        $erro = 'Preencha todos os campos.';
+    } else {
+        $stmt = $pdo->prepare("SELECT id, nome, senha_hash FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
+
+        if (!$user || !password_verify($senha, $user['senha_hash'])) {
+            $erro = 'Email ou senha incorretos.';
+        } else {
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_nome'] = $user['nome'];
+            header('Location: dashboard.php');
+            exit;
+        }
     }
-
-    $stmt = $pdo->prepare("SELECT id, nome, senha_hash FROM users WHERE email = ?");
-    $stmt->execute([$email]);
-    $user = $stmt->fetch();
-
-    if (!$user || !password_verify($senha, $user['senha_hash'])) {
-        die('Email ou senha incorretos.');
-    }
-
-    $_SESSION['user_id'] = $user['id'];
-    $_SESSION['user_nome'] = $user['nome'];
-
-    header('Location: dashboard.php'); // página principal do sistema
-    exit;
 }
 ?>
 
@@ -37,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 
     <div id="cad">
-        <p>Ainda não tem conta? <a href="#">cadastre-se</a></p>
+        <p>Ainda não tem conta? <a href="register.php">cadastre-se</a></p>
     </div>
 
     <div class="container">
@@ -53,6 +54,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
     </div>
 
+
+            <?php if (!empty($erro)): ?>
+        <script>
+            window.onload = function() {
+                alert("<?= addslashes($erro) ?>");
+            };
+        </script>
+        <?php endif; ?>
 </body>
 </html>
 

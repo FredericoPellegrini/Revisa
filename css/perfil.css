@@ -1,0 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #1e1e1e;
+    font-family: 'Ubuntu', sans-serif;
+    color: white;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 500px;
+    padding: 30px;
+    text-align: center;
+}
+
+.perfil {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.foto {
+    width: 64px;
+    height: 64px;
+    background-color: #ccc;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+h2 {
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.msg {
+    color: lightgreen;
+    margin-bottom: 15px;
+}
+
+form.bloco,
+div.bloco {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.linha {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #3a3a3a;
+    padding: 14px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.linha label {
+    text-align: left;
+    flex: 1;
+}
+
+.linha span {
+    flex: 1;
+    text-align: right;
+}
+
+.linha a {
+    color: #bcbcbc;
+    text-decoration: none;
+}
+
+.linha a:hover {
+    text-decoration: underline;
+}
+
+.linha input {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    text-align: right;
+    flex: 1;
+    outline: none;
+}
+
+button {
+    margin-top: 10px;
+    background-color: #D54F72;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #c84c6d;
+}
+
+button.excluir {
+    background: none;
+    color: #e74c3c;
+    font-weight: bold;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+button.excluir:hover {
+    text-decoration: underline;
+}
+
+.voltar {
+    margin-top: 30px;
+}
+
+.voltar a {
+    color: #aaa;
+    text-decoration: none;
+}
+
+.voltar a:hover {
+    text-decoration: underline;
+}
