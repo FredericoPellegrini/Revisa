@@ -47,7 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
                 $stmt->execute([$assunto_id, $tag_id]);
             }
             
-            $dias_revisao = [0, 1, 7, 14, 30]; 
+            // ##### LINHA MODIFICADA AQUI #####
+            $dias_revisao = [0, 1, 7, 14, 30, 60, 120]; 
+            
             $stmt_revisao = $pdo->prepare("INSERT INTO revisoes (assunto_id, dia_revisao, data_revisao) VALUES (?, ?, ?)");
             foreach ($dias_revisao as $dia) {
                 $data_revisao = date('Y-m-d', strtotime("+$dia days"));
@@ -69,9 +71,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
         
         else if ($_POST['action'] === 'delete_assunto') {
             $assunto_id = $_POST['assunto_id'] ?? 0;
-            if (empty($assunto_id)) {
-                throw new Exception("ID do assunto não fornecido.");
-            }
+            if (empty($assunto_id)) throw new Exception("ID do assunto não fornecido.");
+            
             $sql = "DELETE FROM assuntos WHERE id = ? AND user_id = ?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$assunto_id, $usuario_id]);
@@ -82,11 +83,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
                 throw new Exception("Assunto não encontrado ou você não tem permissão para apagá-lo.");
             }
         }
+        
+        else if ($_POST['action'] === 'edit_assunto') {
+            $assunto_id = $_POST['assunto_id'] ?? 0;
+            $novo_titulo = trim($_POST['novo_titulo'] ?? '');
+
+            if (empty($assunto_id)) throw new Exception("ID do assunto não fornecido.");
+            if (empty($novo_titulo)) throw new Exception("O novo título não pode ser vazio.");
+
+            $sql = "UPDATE assuntos SET titulo = ? WHERE id = ? AND user_id = ?";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$novo_titulo, $assunto_id, $usuario_id]);
+
+            if ($stmt->rowCount() > 0) {
+                $response = ['success' => true];
+            } else {
+                throw new Exception("Assunto não encontrado ou o título já era o mesmo.");
+            }
+        }
 
     } catch (Exception $e) {
-        if ($pdo->inTransaction()) {
-            $pdo->rollBack();
-        }
+        if ($pdo->inTransaction()) $pdo->rollBack();
         $response['message'] = 'Erro: ' . $e->getMessage();
     }
 
@@ -126,7 +143,8 @@ foreach($materias as $i => $materia){
         a { color: inherit; text-decoration: none; }
         .dashboard-grid { display: grid; grid-template-columns: 80px 250px 1fr 350px; height: 100vh; }
         .nav-icons, .filters-sidebar, .main-view, .add-task-sidebar { height: 100vh; overflow-y: auto; }
-        .nav-icons { background-color: var(--bg-darker); border-right: 1px solid var(--bg-dark); padding: 24px 0; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .nav-icons { background-color: var(--bg-darker); border-right: 1px solid var(--bg-dark); padding: 24px 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
+        .nav-icons-top { display: flex; flex-direction: column; align-items: center; gap: 20px; }
         .nav-icons a { padding: 12px; border-radius: 8px; line-height: 0; transition: background-color 0.2s; }
         .nav-icons a:hover { background-color: var(--bg-dark); }
         .nav-icons a.active { background-color: var(--bg-dark); }
@@ -165,7 +183,11 @@ foreach($materias as $i => $materia){
         #add-task-form label { font-size: 0.9rem; font-weight: 500; color: var(--text-normal); display: block; margin-bottom: 8px; }
         #add-task-form input, #add-task-form select { width: 100%; background-color: var(--bg-dark); border: 1px solid var(--bg-dark); color: var(--text-light); padding: 12px; border-radius: 8px; font-size: 1rem; }
         #add-task-form select { appearance: none; -webkit-appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 12px center; }
-        #add-task-form button { width: 100%; background-color: var(--accent-blue); color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; }
+        #add-task-form button[type="submit"] { width: 100%; background-color: var(--accent-blue); color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; }
+        #new-tag-group { display: none; align-items: center; gap: 8px; }
+        #new-tag-group input { flex-grow: 1; }
+        .cancel-new-tag-btn { background-color: var(--bg-dark); border: 1px solid var(--text-dark); color: var(--text-normal); padding: 4px 8px; font-size: 0.8rem; border-radius: 4px; cursor: pointer; }
+        .cancel-new-tag-btn:hover { background-color: var(--text-dark); color: white; }
         #form-message { margin-top: 16px; padding: 10px; border-radius: 8px; text-align: center; display: none; word-break: break-word; }
         #form-message.success { background-color: #166534; color: #DCFCE7; }
         #form-message.error { background-color: #991B1B; color: #FEE2E2; }
@@ -174,8 +196,15 @@ foreach($materias as $i => $materia){
 <body>
     <div class="dashboard-grid">
         <aside class="nav-icons">
-            <a href="#" class="active" title="Hoje"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></a>
-            <a href="#" title="Próximos 7 Dias"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></a>
+            <div class="nav-icons-top">
+                <a href="#" class="active" title="Hoje"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></a>
+                <a href="calendario.php" title="Calendário"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></a>
+                <a href="perfil.php" title="Perfil"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg></a>
+                <a href="busca.php" title="Busca"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg></a>
+            </div>
+            <div class="nav-icons-bottom">
+                <a href="logout.php" title="Sair"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l-3-3m0 0l-3-3m3 3H9" /></svg></a>
+            </div>
         </aside>
         
         <aside class="filters-sidebar">
@@ -213,17 +242,19 @@ foreach($materias as $i => $materia){
                 </div>
                 <div class="form-group">
                     <label for="task-tag-select">Tag (Opcional)</label>
-                    <select id="task-tag-select" name="tag_existente">
-                        <option value="">Nenhuma</option>
-                        <?php foreach ($materias as $materia): ?>
-                            <option value="<?= htmlspecialchars($materia) ?>"><?= htmlspecialchars($materia) ?></option>
-                        <?php endforeach; ?>
-                        <option value="--new--">--- Adicionar Nova Tag ---</option>
-                    </select>
-                </div>
-                <div class="form-group" id="new-tag-group" style="display: none;">
-                    <label for="task-tag-nova">Nome da Nova Tag</label>
-                    <input type="text" id="task-tag-nova" name="tag_nova">
+                    <div id="tag-input-wrapper">
+                        <select id="task-tag-select" name="tag_existente">
+                            <option value="">Nenhuma</option>
+                            <?php foreach ($materias as $materia): ?>
+                                <option value="<?= htmlspecialchars($materia) ?>"><?= htmlspecialchars($materia) ?></option>
+                            <?php endforeach; ?>
+                            <option value="--new--">--- Adicionar Nova Tag ---</option>
+                        </select>
+                        <div id="new-tag-group">
+                            <input type="text" id="task-tag-nova" name="tag_nova" placeholder="Nome da Nova Tag">
+                            <button type="button" id="cancel-new-tag-btn" class="cancel-new-tag-btn" title="Cancelar">X</button>
+                        </div>
+                    </div>
                 </div>
                 <button type="submit">Adicionar</button>
             </form>
@@ -245,34 +276,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const tagSelect = document.getElementById('task-tag-select');
     const newTagGroup = document.getElementById('new-tag-group');
     const newTagInput = document.getElementById('task-tag-nova');
+    const cancelNewTagBtn = document.getElementById('cancel-new-tag-btn');
 
     let currentPeriod = 'today';
     let currentTag = 'all';
 
     function renderTasks() {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const nextWeek = new Date();
-        nextWeek.setDate(today.getDate() + 7);
-        nextWeek.setHours(0, 0, 0, 0);
-
-        pendingTasksContainer.innerHTML = '';
-        completedTasksContainer.innerHTML = '';
-        
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        pendingTasksContainer.innerHTML = ''; completedTasksContainer.innerHTML = '';
         const filteredRevisoes = todasRevisoes.filter(rev => {
             const revDate = new Date(rev.data_revisao + 'T00:00:00-03:00');
+            const nextWeek = new Date(new Date().setDate(today.getDate() + 7)); nextWeek.setHours(0,0,0,0);
             let periodMatch = false;
-            if (currentPeriod === 'today') {
-                if (revDate.getTime() === today.getTime()) periodMatch = true;
-            } else if (currentPeriod === 'week') {
-                if (revDate >= today && revDate <= nextWeek) periodMatch = true;
-            } else if (currentPeriod === 'all') {
-                periodMatch = true;
-            }
+            if (currentPeriod === 'today') { if (revDate.getTime() === today.getTime()) periodMatch = true; } 
+            else if (currentPeriod === 'week') { if (revDate >= today && revDate <= nextWeek) periodMatch = true; } 
+            else if (currentPeriod === 'all') { periodMatch = true; }
             const tagMatch = (currentTag === 'all' || !rev.tag_nome || rev.tag_nome === currentTag);
             return periodMatch && tagMatch;
         });
-        
         let hasPending = false;
         filteredRevisoes.forEach(rev => {
             const taskCard = document.createElement('div');
@@ -280,30 +301,23 @@ document.addEventListener('DOMContentLoaded', function() {
             taskCard.dataset.id = rev.id;
             taskCard.dataset.materia = rev.tag_nome || '';
             taskCard.dataset.assuntoId = rev.assunto_id;
-
+            taskCard.dataset.titulo = rev.titulo;
             const revDate = new Date(rev.data_revisao + 'T00:00:00-03:00');
             const dataFormatada = revDate.toLocaleDateString('pt-BR', {day: '2-digit', month: 'short'});
             const corBorda = rev.tag_nome ? (coresMaterias[rev.tag_nome] || 'var(--text-dark)') : 'var(--text-dark)';
-
             let checkboxHtml = '';
             if (revDate <= today) {
                 checkboxHtml = `<div class="checkbox" style="border-color: ${corBorda}"></div>`;
             } else {
                 checkboxHtml = `<svg class="future-task-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>`;
             }
-
             taskCard.innerHTML = `
                 ${checkboxHtml}
                 <span class="task-title">${rev.titulo}</span>
                 <span class="task-date">${dataFormatada}</span>
                 <div class="task-menu-container">
-                    <button class="task-menu-btn">
-                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/></svg>
-                    </button>
-                    <div class="task-menu-dropdown">
-                        <a href="#" data-action="edit">Editar</a>
-                        <a href="#" data-action="delete" class="delete">Apagar Assunto</a>
-                    </div>
+                    <button class="task-menu-btn"><svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16" style="pointer-events: none;"><path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/></svg></button>
+                    <div class="task-menu-dropdown"><a href="#" data-action="edit">Editar</a><a href="#" data-action="delete" class="delete">Apagar Assunto</a></div>
                 </div>
             `;
             if (rev.feita == 1) {
@@ -314,8 +328,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 pendingTasksContainer.appendChild(taskCard);
             }
         });
-        if (!hasPending) {
+        if (!hasPending && filteredRevisoes.length > 0) {
              pendingTasksContainer.innerHTML = '<p style="color: var(--text-dark);">Nenhuma revisão pendente para este período.</p>';
+        } else if (filteredRevisoes.length === 0) {
+             pendingTasksContainer.innerHTML = '<p style="color: var(--text-dark);">Nenhuma revisão encontrada.</p>';
         }
     }
 
@@ -324,13 +340,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const deleteBtn = e.target.closest('[data-action="delete"]');
         const editBtn = e.target.closest('[data-action="edit"]');
         const checkbox = e.target.closest('.checkbox');
-
         document.querySelectorAll('.task-menu-dropdown').forEach(menu => {
             if (!menu.parentElement.contains(e.target)) {
                 menu.style.display = 'none';
             }
         });
-
         if (menuBtn) {
             e.preventDefault();
             const dropdown = menuBtn.nextElementSibling;
@@ -344,21 +358,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 const formData = new FormData();
                 formData.append('action', 'delete_assunto');
                 formData.append('assunto_id', assuntoId);
-                fetch('dashboard.php', { method: 'POST', body: formData })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            todasRevisoes = todasRevisoes.filter(rev => rev.assunto_id != assuntoId);
-                            renderTasks();
-                        } else {
-                            alert('Erro ao apagar: ' + data.message);
-                        }
-                    });
+                fetch('dashboard.php', { method: 'POST', body: formData }).then(res => res.json()).then(data => {
+                    if (data.success) {
+                        todasRevisoes = todasRevisoes.filter(rev => rev.assunto_id != assuntoId);
+                        renderTasks();
+                    } else { alert('Erro ao apagar: ' + data.message); }
+                });
             }
         }
         else if (editBtn) {
             e.preventDefault();
-            alert('Funcionalidade de Editar a ser implementada.');
+            const taskCard = editBtn.closest('.task-card');
+            const assuntoId = taskCard.dataset.assuntoId;
+            const tituloAtual = taskCard.dataset.titulo;
+            const novoTitulo = prompt("Digite o novo nome para o assunto:", tituloAtual);
+            if (novoTitulo && novoTitulo.trim() !== '' && novoTitulo !== tituloAtual) {
+                const formData = new FormData();
+                formData.append('action', 'edit_assunto');
+                formData.append('assunto_id', assuntoId);
+                formData.append('novo_titulo', novoTitulo.trim());
+                fetch('dashboard.php', { method: 'POST', body: formData }).then(res => res.json()).then(data => {
+                    if (data.success) {
+                        todasRevisoes.forEach(rev => { if (rev.assunto_id == assuntoId) { rev.titulo = novoTitulo.trim(); } });
+                        renderTasks();
+                    } else { alert('Erro ao editar: ' + data.message); }
+                });
+            }
         }
         else if (checkbox) {
             const taskCard = checkbox.closest('.task-card');
@@ -367,19 +392,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData();
             formData.append('action', action);
             formData.append('revisao_id', revisaoId);
-            fetch('dashboard.php', { method: 'POST', body: formData })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const revisaoIndex = todasRevisoes.findIndex(r => r.id == revisaoId);
-                        if (revisaoIndex > -1) {
-                            todasRevisoes[revisaoIndex].feita = (action === 'mark_done') ? 1 : 0;
-                        }
-                        renderTasks();
-                    } else {
-                        alert('Falha na operação: ' + data.message);
-                    }
-                });
+            fetch('dashboard.php', { method: 'POST', body: formData }).then(response => response.json()).then(data => {
+                if (data.success) {
+                    const revisaoIndex = todasRevisoes.findIndex(r => r.id == revisaoId);
+                    if (revisaoIndex > -1) { todasRevisoes[revisaoIndex].feita = (action === 'mark_done') ? 1 : 0; }
+                    renderTasks();
+                } else { alert('Falha na operação: ' + data.message); }
+            });
         }
     });
 
@@ -406,31 +425,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
     tagSelect.addEventListener('change', function() {
         if (this.value === '--new--') {
-            newTagGroup.style.display = 'block';
+            tagSelect.style.display = 'none';
+            newTagGroup.style.display = 'flex';
             newTagInput.required = true;
-        } else {
-            newTagGroup.style.display = 'none';
-            newTagInput.required = false;
-            newTagInput.value = '';
+            newTagInput.focus();
         }
+    });
+
+    cancelNewTagBtn.addEventListener('click', function() {
+        newTagGroup.style.display = 'none';
+        newTagInput.required = false;
+        newTagInput.value = '';
+        tagSelect.style.display = 'block';
+        tagSelect.value = "";
     });
 
     addForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const formData = new FormData(addForm);
         formData.append('action', 'add_task');
-        fetch('dashboard.php', { method: 'POST', body: formData })
-            .then(response => response.json())
-            .then(data => {
-                formMessage.textContent = data.message;
-                formMessage.className = data.success ? 'success' : 'error';
-                formMessage.style.display = 'block';
-                if (data.success) {
-                    addForm.reset();
-                    newTagGroup.style.display = 'none';
-                    setTimeout(() => window.location.reload(), 1500);
-                }
-            });
+        fetch('dashboard.php', { method: 'POST', body: formData }).then(response => response.json()).then(data => {
+            formMessage.textContent = data.message;
+            formMessage.className = data.success ? 'success' : 'error';
+            formMessage.style.display = 'block';
+            if (data.success) {
+                addForm.reset();
+                newTagGroup.style.display = 'none';
+                tagSelect.style.display = 'block';
+                setTimeout(() => window.location.reload(), 1500);
+            }
+        });
     });
     
     renderTasks();
