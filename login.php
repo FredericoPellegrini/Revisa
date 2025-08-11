@@ -41,10 +41,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p>Ainda não tem conta? <a href="register.php">cadastre-se</a></p>
     </div>
 
-    <div class="container">
-        <div id="logo">
-            <img src="images/logo.png" alt="Logo" id="img1">
-            <img src="images/nome.png" alt="Nome Revisa" id="img2">
+<div class="container">
+        <div class="logo-container">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+
+            <div id="logo">
+                <img src="images/logo.png" alt="Logo" id="img1">
+                <img src="images/nome.png" alt="Nome Revisa" id="img2">
+            </div>
         </div>
 
         <form method="post" action="">
