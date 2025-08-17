@@ -1,77 +1,28 @@
-<?php
-// index.php
-?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/telasinicias.css">
+    <link rel="stylesheet" href="css/index.css">
+
     <title>Revisa</title>
-    <style>
-        body {
-            background-color: black;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            margin-top: 50px;
-        }
-        .logo {
-            font-size: 2rem;
-            color: #e25b7f;
-            font-weight: bold;
-        }
-        h2 {
-            margin-top: 10px;
-            font-weight: normal;
-        }
-        .buttons {
-            margin-top: 30px;
-        }
-        .btn {
-            background-color: #e25b7f;
-            color: white;
-            padding: 12px 30px;
-            margin: 10px;
-            border: none;
-            border-radius: 25px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .cards {
-            display: flex;
-            justify-content: center;
-            margin-top: 50px;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        .card {
-            background-color: #333;
-            padding: 20px;
-            width: 250px;
-            border-radius: 20px;
-            text-align: center;
-        }
-        .card h3 {
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-        .footer {
-            margin-top: 50px;
-            font-size: 0.8rem;
-        }
-    </style>
 </head>
 <body>
 
     <header>
-        <div class="logo">🧠 Revisa</div>
+
+    <div class="container">
+            <div class="logo-container">
+
+
+                <div id="logo">
+                    <img src="images/logo.png" alt="Logo" id="img1">
+                    <img src="images/nome.png" alt="Nome Revisa" id="img2">
+                </div>
+            </div>
+        </div>        
+
         <h2>ORGANIZE SEUS ESTUDOS COM A TÉCNICA<br>DE REPETIÇÃO ESPAÇADA</h2>
         <div class="buttons">
             <a href="login.php" class="btn">ENTRAR</a>
@@ -79,24 +30,55 @@
         </div>
     </header>
 
-    <section class="cards">
-        <div class="card">
-            <h3>TEXTO 1</h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur sit amet sem et lorem rhoncus tempor sit amet ac risus. Integer ut lacus pretium, luctus sapien a, volutpat nunc. Nunc semper porttitor viverra.</p>
-        </div>
-        <div class="card">
-            <h3>TEXTO 2</h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur sit amet sem et lorem rhoncus tempor sit amet ac risus. Integer ut lacus pretium, luctus sapien a, volutpat nunc. Nunc semper porttitor viverra.</p>
-        </div>
-        <div class="card">
-            <h3>TEXTO 3</h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur sit amet sem et lorem rhoncus tempor sit amet ac risus. Integer ut lacus pretium, luctus sapien a, volutpat nunc. Nunc semper porttitor viverra.</p>
-        </div>
-    </section>
+<section class="card-slider">
+    <div class="card active">
+        <h3>MEMÓRIA NO TEMPO CERTO</h3>
+        <p>Sua memória funciona como um músculo: se não for estimulada na hora certa, perde força. O Revisa aplica a técnica da repetição espaçada para reforçar seus estudos nos momentos exatos em que o cérebro começaria a esquecer.</p>
+    </div>
+    <div class="card">
+        <h3>ADEUS ESQUECIMENTO</h3>
+        <p>Quantas vezes você já estudou algo com dedicação e, pouco tempo depois, parecia que nunca tinha visto o assunto? O Revisa resolve isso calculando automaticamente o melhor intervalo de revisão para cada matéria.</p>
+    </div>
+    <div class="card">
+        <h3>ESTUDE COMO OS CAMPEÕES</h3>
+        <p>Nos grandes exames, não basta estudar muito, é preciso estudar de forma inteligente. O Revisa organiza suas revisões aplicando o método científico da repetição espaçada.</p>
+    </div>
+
+    <!-- Botões de navegação -->
+    <button class="prev">&#10094;</button> <!-- seta para esquerda -->
+    <button class="next">&#10095;</button> <!-- seta para direita -->
+</section>
+
 
     <div class="footer">
-        DESENVOLVIDO POR FREDERICO PELLEGRINI
+        DESENVOLVIDO POR <a href="https://github.com/FredericoPellegrini">FREDERICO PELLEGRINI</a>
     </div>
+
+<script>
+    const cards = document.querySelectorAll(".card-slider .card");
+    let current = 0;
+
+    function showCard(index) {
+        cards.forEach((c, i) => c.classList.toggle("active", i === index));
+    }
+
+    document.querySelector(".next").addEventListener("click", () => {
+        current = (current + 1) % cards.length;
+        showCard(current);
+    });
+
+    document.querySelector(".prev").addEventListener("click", () => {
+        current = (current - 1 + cards.length) % cards.length;
+        showCard(current);
+    });
+
+    setInterval(() => {
+        current = (current + 1) % cards.length;
+        showCard(current);
+    }, 5000);
+</script>
+
+
 
 </body>
 </html>

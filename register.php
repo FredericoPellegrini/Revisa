@@ -43,18 +43,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Revisa | Cadastro</title>
-    <link rel="stylesheet" href="css/cadastro.css">
+    <link rel="stylesheet" href="css/telasinicias.css">
 </head>
 <body>
 
-    <div id="voltar">
-        <a href="login.php">Voltar</a>
+    <div id="cad">
+        <a href="login.php">Login</a>
     </div>
 
     <div class="container">
-        <div id="logo">
-            <img src="images/logo.png" alt="Logo" id="img1">
-            <img src="images/nome.png" alt="Nome Revisa" id="img2">
+        <div class="logo-container">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+
+            <div id="logo">
+                <img src="images/logo.png" alt="Logo" id="img1">
+                <img src="images/nome.png" alt="Nome Revisa" id="img2">
+            </div>
         </div>
 
         <form method="post" action="">
