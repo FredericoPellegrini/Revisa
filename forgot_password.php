@@ -70,10 +70,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/telasinicias.css">
     <title>Esqueci a senha</title>
 </head>
 <body>
-    <h2>Esqueci a senha</h2>
+
+    <div class="container">
+        <div class="logo-container">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+
+        <div id="logo">
+            <img src="images/logo.png" alt="Logo" id="img1">
+            <img src="images/nome.png" alt="Nome Revisa" id="img2">
+        </div>
+    </div>
+
+    <h2>Recuperação de Senha</h2>
+
+
     <form method="post">
         <input type="email" name="email" placeholder="Digite seu e-mail" required>
         <button type="submit">Enviar link</button>
