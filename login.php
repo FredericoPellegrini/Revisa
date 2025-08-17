@@ -11,13 +11,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$email || !$senha) {
         $erro = 'Preencha todos os campos.';
     } else {
-        $stmt = $pdo->prepare("SELECT id, nome, senha_hash FROM users WHERE email = ?");
+        // CORREÇÃO AQUI: Mudado 'email_verificado' para 'ativo'
+        $stmt = $pdo->prepare("SELECT id, nome, senha_hash, ativo FROM users WHERE email = ?");
         $stmt->execute([$email]);
         $user = $stmt->fetch();
 
         if (!$user || !password_verify($senha, $user['senha_hash'])) {
-            $erro = 'Email ou senha incorretos.';
+            $erro = 'E-mail ou senha incorretos.';
+        } 
+        // CORREÇÃO AQUI: Mudado '$user['email_verificado']' para '$user['ativo']'
+        elseif ($user['ativo'] == 0) { 
+            $erro = 'Você precisa confirmar seu e-mail antes de fazer login. Verifique sua caixa de entrada.';
         } else {
+            // Login ok
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_nome'] = $user['nome'];
             header('Location: dashboard.php');
@@ -26,7 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -41,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p>Ainda não tem conta? <a href="register.php">cadastre-se</a></p>
     </div>
 
-<div class="container">
+    <div class="container">
         <div class="logo-container">
             <div class="particle"></div>
             <div class="particle"></div>
@@ -59,24 +64,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <form method="post" action="">
-            <input type="email" name="email" placeholder="E-mail" required>
-            <input type="password" name="senha" placeholder="Senha" required>
+            <?php if (!empty($erro)): ?>
+                <div class="erro"><?= htmlspecialchars($erro) ?></div>
+            <?php endif; ?>
+
+            <input type="email" name="email" placeholder="E-mail" 
+                    value="<?= htmlspecialchars($email ?? '') ?>" 
+                    class="<?= !empty($erro) ? 'input-erro' : '' ?>" required>
+
+            <input type="password" name="senha" placeholder="Senha" 
+                    class="<?= !empty($erro) ? 'input-erro' : '' ?>" required>
+
             <button type="submit">Login</button>
         </form>
 
-        <p><a href="forgot_password.php">Esqueceu a senha?</a></p>
-
-
+        <p><a href="forgot_password.php" id="linkesqueceusenha">Esqueceu a senha?</a></p>
     </div>
 
-
-            <?php if (!empty($erro)): ?>
-        <script>
-            window.onload = function() {
-                alert("<?= addslashes($erro) ?>");
-            };
-        </script>
-        <?php endif; ?>
 </body>
 </html>
-
