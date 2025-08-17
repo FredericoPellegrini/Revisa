@@ -130,9 +130,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         #linkesqueceusenha:hover{
             text-decoration: underline;
         }
+
+        a{
+            text-decoration: none;
+            color: white;
+        }
+
     </style>
 </head>
 <body>
+
+
 
     <div class="container">
         <div class="logo-container">
@@ -197,4 +205,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </script>
 </body>
-</html>
+</html> 

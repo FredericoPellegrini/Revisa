@@ -75,6 +75,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 
+    <div id="cad">
+        <a href="login.php">Login</a>
+    </div>
+
     <div class="container">
         <div class="logo-container">
             <div class="particle"></div>
