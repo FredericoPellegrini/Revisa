@@ -123,10 +123,7 @@ foreach($materias as $i => $materia){
             color: var(--bg-darkest);
         }
 
-        /* DESTAQUE: Estilos para o dia corrente
-        .day-cell.current-day {
-            background-color: #2a2d2f;
-        }*/
+
         .current-day .day-number {
             background-color: var(--accent-blue);
             color: white;

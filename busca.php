@@ -18,43 +18,43 @@ if ($busca_realizada && !empty(trim($_GET['q']))) {
     $termo_pesquisa = trim($_GET['q']);
     $termo_para_busca = "%" . $termo_pesquisa . "%";
 
-    // ##### CONSULTA SQL ATUALIZADA AQUI #####
     $sql_busca = "
         SELECT 
             a.id, 
             a.titulo, 
-            r.data_revisao
+            GROUP_CONCAT(
+                CASE 
+                    WHEN r.feita = 0 AND r.data_revisao >= CURDATE() THEN DATE_FORMAT(r.data_revisao, '%d/%m/%Y') 
+                    ELSE NULL 
+                END
+                ORDER BY r.data_revisao ASC
+                SEPARATOR ','
+            ) as proximas_revisoes
         FROM assuntos a
-        LEFT JOIN revisoes r ON a.id = r.assunto_id 
-            AND r.data_revisao >= CURDATE() 
-            AND r.feita = 0  -- Adicionada esta linha para ignorar revisões concluídas
+        LEFT JOIN revisoes r ON a.id = r.assunto_id
         WHERE 
             a.user_id = ? AND a.titulo LIKE ?
+        GROUP BY
+            a.id, a.titulo
         ORDER BY 
-            a.titulo, r.data_revisao ASC
+            a.titulo
     ";
     $stmt = $pdo->prepare($sql_busca);
     $stmt->execute([$usuario_id, $termo_para_busca]);
-    $resultados_banco = $stmt->fetchAll();
+    $resultados_banco = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Organizar resultados por assunto
-    foreach ($resultados_banco as $resultado) {
-        $assunto_id = $resultado['id'];
-        if (!isset($resultados[$assunto_id])) {
-            $resultados[$assunto_id] = [
-                'titulo' => $resultado['titulo'],
-                'revisoes' => []
-            ];
+    // Organiza os resultados
+    foreach($resultados_banco as $resultado) {
+        $revisoes = [];
+        if (!empty($resultado['proximas_revisoes'])) {
+            $revisoes = explode(',', $resultado['proximas_revisoes']);
         }
-        if ($resultado['data_revisao']) {
-            $data_formatada = date('d/m/Y', strtotime($resultado['data_revisao']));
-            if (!in_array($data_formatada, $resultados[$assunto_id]['revisoes'])) {
-                $resultados[$assunto_id]['revisoes'][] = $data_formatada;
-            }
-        }
+        $resultados[$resultado['id']] = [
+            'titulo' => $resultado['titulo'],
+            'revisoes' => $revisoes
+        ];
     }
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -62,17 +62,28 @@ if ($busca_realizada && !empty(trim($_GET['q']))) {
     <meta charset="UTF-8">
     <title>Busca - Revisa</title>
     <style>
-        :root { --bg-darkest: #000000; --bg-darker: #111827; --bg-dark: #1F2937; --text-light: #E5E7EB; --text-normal: #9CA3AF; --text-dark: #6B7280; --accent-yellow: #FBBF24; --accent-red: #F87171; --accent-green: #22C55E; --accent-blue: #3B82F6; }
+        :root { 
+            --bg-darkest: #282A2C;
+            --bg-darker: #1B1C1D;
+            --bg-dark: #282A2C;
+            --text-light: #E5E7EB; 
+            --text-normal: #9CA3AF; 
+            --text-dark: #6B7280; 
+            --accent-yellow: #FBBF24; 
+            --accent-red: #F87171; 
+            --accent-green: #22C55E; 
+            --accent-blue: #3B82F6; 
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-darkest); color: var(--text-light); display: flex; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-darker); color: var(--text-light); display: flex; }
         a { color: inherit; text-decoration: none; }
 
-        .nav-icons { background-color: var(--bg-darker); border-right: 1px solid var(--bg-dark); padding: 24px 0; width: 80px; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: space-between; flex-shrink: 0; }
+        .nav-icons { background-color: var(--bg-dark); border-right: 1px solid var(--bg-dark); padding: 24px 0; width: 80px; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: space-between; flex-shrink: 0; }
         .nav-icons-top { display: flex; flex-direction: column; align-items: center; gap: 20px; }
         .nav-icons a { padding: 12px; border-radius: 8px; line-height: 0; transition: background-color 0.2s; }
-        .nav-icons a:hover { background-color: var(--bg-dark); }
-        .nav-icons a.active { background-color: var(--bg-dark); }
-        .nav-icons svg { width: 28px; height: 28px; }
+        .nav-icons a:hover { background-color: #374151; }
+        .nav-icons a.active { background-color: var(--bg-darker); }
+        .nav-icons svg { width: 28px; height: 28px; color: var(--text-light); }
         .nav-icons .active svg { color: var(--accent-green); }
 
         .search-main-content { width: 100%; padding: 40px; overflow-y: auto; }
@@ -85,13 +96,23 @@ if ($busca_realizada && !empty(trim($_GET['q']))) {
         .search-form button { background-color: var(--accent-blue); color: white; border: none; padding: 0 24px; border-radius: 8px; font-size: 1rem; cursor: pointer; font-weight: bold; }
 
         .search-results-container { margin-top: 40px; }
-        .result-item { background-color: var(--bg-dark); padding: 20px; border-radius: 8px; margin-bottom: 15px; }
+        .result-item { background-color: var(--bg-dark); padding: 20px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-start; }
         .result-item h3 { color: var(--accent-yellow); margin-bottom: 10px; font-size: 1.2rem; }
         .result-item p { color: var(--text-normal); font-size: 0.9rem; line-height: 1.5; }
         .revisoes-list { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; padding-top: 5px; }
         .revisoes-list li { background-color: var(--bg-darker); padding: 5px 10px; border-radius: 4px; font-size: 0.85rem; }
         
         .status-message { color: var(--text-normal); text-align: center; padding: 40px; background-color: var(--bg-dark); border-radius: 8px; }
+
+        /* DESTAQUE: Estilos para o menu CRUD */
+        .result-menu-container { position: relative; }
+        .menu-btn { padding: 4px; border-radius: 4px; line-height: 0; cursor: pointer; background: none; border: none; color: var(--text-normal); }
+        .menu-btn:hover { background-color: #374151; }
+        .menu-dropdown { display: none; position: absolute; right: 0; top: 30px; background-color: #374151; border-radius: 8px; z-index: 10; width: 140px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        .menu-dropdown a { display: block; padding: 10px 12px; font-size: 0.9rem; color: var(--text-light); }
+        .menu-dropdown a:hover { background-color: var(--accent-blue); color: white; }
+        .menu-dropdown a.delete-btn { color: var(--accent-red); }
+        .menu-dropdown a.delete-btn:hover { background-color: var(--accent-red); color: white; }
     </style>
 </head>
 <body>
@@ -118,19 +139,30 @@ if ($busca_realizada && !empty(trim($_GET['q']))) {
             <div class="search-results-container">
                 <?php if ($busca_realizada): ?>
                     <?php if (!empty($resultados)): ?>
-                        <?php foreach ($resultados as $assunto): ?>
-                            <div class="result-item">
-                                <h3><?= htmlspecialchars($assunto['titulo']) ?></h3>
-                                <?php if (!empty($assunto['revisoes'])): ?>
-                                    <p>Próximas revisões agendadas:</p>
-                                    <ul class="revisoes-list">
-                                        <?php foreach($assunto['revisoes'] as $data_rev): ?>
-                                            <li><?= $data_rev ?></li>
-                                        <?php endforeach; ?>
-                                    </ul>
-                                <?php else: ?>
-                                    <p>Nenhuma revisão futura agendada para este assunto.</p>
-                                <?php endif; ?>
+                        <?php foreach ($resultados as $assunto_id => $assunto): ?>
+                            <div class="result-item" data-assunto-id="<?= $assunto_id ?>" data-titulo="<?= htmlspecialchars($assunto['titulo']) ?>">
+                                <div class="result-info">
+                                    <h3><?= htmlspecialchars($assunto['titulo']) ?></h3>
+                                    <?php if (!empty($assunto['revisoes'])): ?>
+                                        <p>Próximas revisões agendadas:</p>
+                                        <ul class="revisoes-list">
+                                            <?php foreach($assunto['revisoes'] as $data_rev): ?>
+                                                <li><?= $data_rev ?></li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    <?php else: ?>
+                                        <p>Nenhuma revisão futura agendada para este assunto.</p>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="result-menu-container">
+                                    <button class="menu-btn">
+                                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/></svg>
+                                    </button>
+                                    <div class="menu-dropdown">
+                                        <a href="#" class="edit-btn">Editar Assunto</a>
+                                        <a href="#" class="delete-btn">Apagar Assunto</a>
+                                    </div>
+                                </div>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
@@ -146,5 +178,91 @@ if ($busca_realizada && !empty(trim($_GET['q']))) {
             </div>
         </div>
     </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const resultsContainer = document.querySelector('.search-results-container');
+
+    resultsContainer.addEventListener('click', function(e) {
+        const menuBtn = e.target.closest('.menu-btn');
+        
+        // Fecha todos os outros menus antes de abrir um novo
+        document.querySelectorAll('.menu-dropdown').forEach(menu => {
+            if (!menu.parentElement.contains(e.target)) {
+                menu.style.display = 'none';
+            }
+        });
+
+        if (menuBtn) {
+            e.preventDefault();
+            const dropdown = menuBtn.nextElementSibling;
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        const editBtn = e.target.closest('.edit-btn');
+        if (editBtn) {
+            e.preventDefault();
+            const resultItem = editBtn.closest('.result-item');
+            const assuntoId = resultItem.dataset.assuntoId;
+            const tituloAtual = resultItem.dataset.titulo;
+            const novoTitulo = prompt("Digite o novo nome para o assunto:", tituloAtual);
+
+            if (novoTitulo && novoTitulo.trim() !== '' && novoTitulo.trim() !== tituloAtual) {
+                const formData = new FormData();
+                formData.append('action', 'edit_assunto');
+                formData.append('assunto_id', assuntoId);
+                formData.append('novo_titulo', novoTitulo.trim());
+
+                // Reutiliza a API do dashboard.php para editar
+                fetch('dashboard.php', { method: 'POST', body: formData })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            resultItem.querySelector('h3').textContent = novoTitulo.trim();
+                            resultItem.dataset.titulo = novoTitulo.trim();
+                        } else {
+                            alert('Erro ao editar: ' + (data.message || 'Tente novamente.'));
+                        }
+                    });
+            }
+        }
+
+        const deleteBtn = e.target.closest('.delete-btn');
+        if (deleteBtn) {
+            e.preventDefault();
+            if (confirm('Tem certeza que deseja apagar este assunto? Todas as suas revisões serão removidas permanentemente.')) {
+                const resultItem = deleteBtn.closest('.result-item');
+                const assuntoId = resultItem.dataset.assuntoId;
+                
+                const formData = new FormData();
+                formData.append('action', 'delete_assunto');
+                formData.append('assunto_id', assuntoId);
+                
+                // Reutiliza a API do dashboard.php para apagar
+                fetch('dashboard.php', { method: 'POST', body: formData })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            resultItem.style.opacity = '0';
+                            setTimeout(() => resultItem.remove(), 300);
+                        } else {
+                            alert('Erro ao apagar: ' + (data.message || 'Tente novamente.'));
+                        }
+                    });
+            }
+        }
+    });
+
+    // Fecha os menus se clicar fora deles
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.result-menu-container')) {
+            document.querySelectorAll('.menu-dropdown').forEach(menu => {
+                menu.style.display = 'none';
+            });
+        }
+    });
+});
+</script>
+
 </body>
 </html>

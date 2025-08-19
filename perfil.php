@@ -22,11 +22,11 @@ if (!$usuario) {
     exit;
 }
 
+// ... (toda a lógica PHP para atualizar dados, senha, etc., permanece a mesma)
 // Atualizar nome/email
 if (isset($_POST['atualizar_info'])) {
     $novo_nome = trim($_POST['nome'] ?? '');
     $novo_email = trim($_POST['email'] ?? '');
-
     if (empty($novo_nome) || empty($novo_email)) {
         $msg = ['texto' => 'Nome e email não podem ficar vazios.', 'tipo' => 'erro'];
     } else {
@@ -45,37 +45,58 @@ if (isset($_POST['atualizar_info'])) {
         }
     }
 }
-
 // Atualizar senha
 if (isset($_POST['atualizar_senha'])) {
     $senha_atual = $_POST['senha_atual'] ?? '';
     $nova_senha = $_POST['nova_senha'] ?? '';
     $confirmar = $_POST['confirmar_senha'] ?? '';
-
-    // ##### LÓGICA DE ATUALIZAÇÃO DE SENHA MODIFICADA #####
     if (!password_verify($senha_atual, $usuario['senha_hash'])) {
         $msg = ['texto' => 'Senha atual incorreta.', 'tipo' => 'erro'];
     } elseif ($nova_senha !== $confirmar) {
         $msg = ['texto' => 'Nova senha e confirmação não conferem.', 'tipo' => 'erro'];
+    } elseif (strlen($nova_senha) < 6) {
+        $msg = ['texto' => 'A nova senha deve ter no mínimo 6 caracteres.', 'tipo' => 'erro'];
     } else {
-        // A verificação de tamanho (strlen) foi removida.
         $nova_hash = password_hash($nova_senha, PASSWORD_DEFAULT);
         $stmt = $pdo->prepare("UPDATE users SET senha_hash = ? WHERE id = ?");
         $stmt->execute([$nova_hash, $user_id]);
         $msg = ['texto' => 'Senha atualizada com sucesso!', 'tipo' => 'sucesso'];
-        // Recarrega os dados do usuário para que a hash da senha esteja atualizada para futuras tentativas na mesma sessão.
         $stmt_load->execute([$user_id]);
         $usuario = $stmt_load->fetch();
     }
 }
-
-// Excluir conta
+// Limpar dados de estudo
+if (isset($_POST['limpar_dados'])) {
+    $senha_confirmacao = $_POST['senha_confirmacao'] ?? '';
+    if (password_verify($senha_confirmacao, $usuario['senha_hash'])) {
+        try {
+            $pdo->beginTransaction();
+            $stmt_delete_assuntos = $pdo->prepare("DELETE FROM assuntos WHERE user_id = ?");
+            $stmt_delete_assuntos->execute([$user_id]);
+            $stmt_delete_tags = $pdo->prepare("DELETE FROM tags WHERE id NOT IN (SELECT DISTINCT tag_id FROM assunto_tag)");
+            $stmt_delete_tags->execute();
+            $pdo->commit();
+            $msg = ['texto' => 'Todos os seus dados de estudo foram apagados com sucesso!', 'tipo' => 'sucesso'];
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            $msg = ['texto' => 'Ocorreu um erro ao limpar seus dados. Tente novamente.', 'tipo' => 'erro'];
+        }
+    } else {
+        $msg = ['texto' => 'Senha incorreta. Seus dados não foram apagados.', 'tipo' => 'erro'];
+    }
+}
+// Excluir Conta com verificação de senha
 if (isset($_POST['excluir_conta'])) {
-    $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
-    $stmt->execute([$user_id]);
-    session_destroy();
-    header('Location: login.php?msg=Conta+excluída+com+sucesso');
-    exit;
+    $senha_excluir = $_POST['senha_excluir'] ?? '';
+    if (password_verify($senha_excluir, $usuario['senha_hash'])) {
+        $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
+        $stmt->execute([$user_id]);
+        session_destroy();
+        header('Location: login.php?msg=Conta+excluída+com+sucesso');
+        exit;
+    } else {
+        $msg = ['texto' => 'Senha incorreta. A conta não foi excluída.', 'tipo' => 'erro'];
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -83,40 +104,56 @@ if (isset($_POST['excluir_conta'])) {
 <head>
     <meta charset="UTF-8">
     <title>Meu Perfil - Revisa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        :root { --bg-darkest: #000000; --bg-darker: #111827; --bg-dark: #1F2937; --text-light: #E5E7EB; --text-normal: #9CA3AF; --text-dark: #6B7280; --accent-yellow: #FBBF24; --accent-red: #F87171; --accent-green: #22C55E; --accent-blue: #3B82F6; }
+        :root { 
+            --bg-darkest: #282A2C; --bg-darker: #1B1C1D; --bg-dark: #282A2C;
+            --text-light: #E5E7EB; --text-normal: #9CA3AF; --text-dark: #6B7280; 
+            --accent-yellow: #FBBF24; --accent-red: #F87171; --accent-green: #22C55E; --accent-blue: #3B82F6; 
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-darkest); color: var(--text-light); }
-        a { color: var(--accent-blue); text-decoration: none; }
-        a:hover { text-decoration: underline; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-darker); color: var(--text-light); }
+        a { color: inherit; text-decoration: none; }
+        
         .main-grid { display: grid; grid-template-columns: 80px 1fr; height: 100vh; }
-        .nav-icons, .profile-main-content { height: 100vh; overflow-y: auto; }
-        .nav-icons { background-color: var(--bg-darker); border-right: 1px solid var(--bg-dark); padding: 24px 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between; flex-shrink: 0; }
+        .nav-icons { background-color: var(--bg-dark); border-right: 1px solid var(--bg-dark); padding: 24px 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
         .nav-icons-top { display: flex; flex-direction: column; align-items: center; gap: 20px; }
         .nav-icons a { padding: 12px; border-radius: 8px; line-height: 0; transition: background-color 0.2s; }
-        .nav-icons a:hover { background-color: var(--bg-dark); }
-        .nav-icons a.active { background-color: var(--bg-dark); }
+        .nav-icons a:hover { background-color: #374151; }
+        .nav-icons a.active { background-color: var(--bg-darker); }
         .nav-icons svg { width: 28px; height: 28px; }
         .nav-icons .active svg { color: var(--accent-green); }
-        .profile-main-content { padding: 40px; }
+
+        .profile-main-content { padding: 40px; background-color: var(--bg-darker); height: 100vh; overflow-y: auto; }
         .profile-box { max-width: 600px; margin: 0 auto; }
         .profile-box h1 { font-size: 1.8rem; margin-bottom: 30px; color: white; }
+        
         .form-block { background-color: var(--bg-dark); padding: 25px; border-radius: 8px; margin-bottom: 20px; }
         .form-block h2 { font-size: 1.2rem; margin-bottom: 20px; color: var(--text-light); border-bottom: 1px solid var(--bg-darker); padding-bottom: 10px; }
+        .form-block h3 { font-size: 1rem; margin-top: 25px; margin-bottom: 15px; color: var(--text-light); }
+        .form-block p { font-size: 0.9rem; color: var(--text-normal); margin-bottom: 15px; line-height: 1.5; }
         .form-row { margin-bottom: 15px; }
         .form-row label { display: block; font-size: 0.9rem; font-weight: 500; color: var(--text-normal); margin-bottom: 8px; }
         .form-row input { width: 100%; background-color: var(--bg-darker); border: 1px solid var(--text-dark); color: var(--text-light); padding: 12px; border-radius: 8px; font-size: 1rem; }
-        .form-row input:focus { outline: none; border-color: var(--accent-blue); }
+        
         button[type="submit"] { background-color: var(--accent-blue); color: #fff; border: none; padding: 12px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
         button[type="submit"]:hover { background-color: #2563EB; }
-        .delete-block { border: 1px solid var(--accent-red); }
-        .delete-block h2 { color: var(--accent-red); border-bottom-color: rgba(248, 113, 113, 0.2); }
-        .delete-block .form-row { display: flex; justify-content: space-between; align-items: center; }
+
+        .delete-block { border: 1px solid rgba(248, 113, 113, 0.3); }
         .delete-btn { background-color: var(--accent-red); }
         .delete-btn:hover { background-color: #DC2626; }
+        .warning-btn { background-color: var(--accent-yellow); color: var(--bg-darkest); }
+        .warning-btn:hover { background-color: #D97706; }
+        
         .feedback-msg { padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 500; }
         .feedback-msg.sucesso { background-color: #166534; color: #DCFCE7; }
         .feedback-msg.erro { background-color: #991B1B; color: #FEE2E2; }
+
+        /* DESTAQUE: Estilos para o container da senha e o ícone */
+        .password-container { position: relative; }
+        .password-container input { padding-right: 45px; /* Espaço para o ícone */ }
+        .password-container .toggle-password { position: absolute; top: 50%; right: 15px; transform: translateY(-50%); cursor: pointer; color: var(--text-normal); }
+
     </style>
 </head>
 <body>
@@ -156,27 +193,87 @@ if (isset($_POST['excluir_conta'])) {
                     <h2>Alterar Senha</h2>
                     <div class="form-row">
                         <label for="senha_atual">Senha Atual</label>
-                        <input type="password" id="senha_atual" name="senha_atual" required>
+                        <div class="password-container">
+                            <input type="password" id="senha_atual" name="senha_atual" required>
+                            <i class="fas fa-eye toggle-password" data-target="senha_atual"></i>
+                        </div>
                     </div>
                     <div class="form-row">
-                        <label for="nova_senha">Nova Senha</label>
-                        <input type="password" id="nova_senha" name="nova_senha" required>
+                        <label for="nova_senha">Nova Senha (mínimo 6 caracteres)</label>
+                        <div class="password-container">
+                            <input type="password" id="nova_senha" name="nova_senha" required>
+                            <i class="fas fa-eye toggle-password" data-target="nova_senha"></i>
+                        </div>
                     </div>
                     <div class="form-row">
                         <label for="confirmar_senha">Confirmar Nova Senha</label>
-                        <input type="password" id="confirmar_senha" name="confirmar_senha" required>
+                        <div class="password-container">
+                            <input type="password" id="confirmar_senha" name="confirmar_senha" required>
+                            <i class="fas fa-eye toggle-password" data-target="confirmar_senha"></i>
+                        </div>
                     </div>
                     <button type="submit" name="atualizar_senha">Alterar Senha</button>
                 </form>
-                <form method="post" class="form-block delete-block" onsubmit="return confirm('ATENÇÃO: Esta ação é irreversível e apagará todos os seus dados. Deseja mesmo excluir sua conta?');">
+
+                <div class="form-block delete-block">
                     <h2>Gerenciar Conta</h2>
-                    <div class="form-row">
-                        <label>Excluir sua conta permanentemente.</label>
-                        <button type="submit" name="excluir_conta" class="delete-btn">Excluir Conta</button>
-                    </div>
-                </form>
+                    
+                    <form method="post" onsubmit="return confirm('ATENÇÃO: Isso apagará TODOS os seus assuntos e revisões. Deseja continuar?');">
+                        <h3>Limpar Dados de Estudo</h3>
+                        <p>Esta ação removerá todos os seus assuntos e o histórico de revisões. Sua conta e login serão mantidos.</p>
+                        <div class="form-row">
+                            <label for="senha_confirmacao">Digite sua senha para confirmar</label>
+                            <div class="password-container">
+                                <input type="password" id="senha_confirmacao" name="senha_confirmacao" required>
+                                <i class="fas fa-eye toggle-password" data-target="senha_confirmacao"></i>
+                            </div>
+                        </div>
+                        <button type="submit" name="limpar_dados" class="warning-btn">Limpar Todos os Dados</button>
+                    </form>
+
+                    <hr style="border-color: var(--bg-darker); margin: 30px 0;">
+
+                    <form method="post" onsubmit="return confirm('ATENÇÃO: Ação IRREVERSÍVEL. Deseja mesmo excluir sua conta?');">
+                        <h3>Excluir Conta</h3>
+                        <p>Esta ação removerá permanentemente sua conta, seu login e todos os seus dados associados.</p>
+                        <div class="form-row">
+                            <label for="senha_excluir">Digite sua senha para confirmar a exclusão</label>
+                            <div class="password-container">
+                                <input type="password" id="senha_excluir" name="senha_excluir" required>
+                                <i class="fas fa-eye toggle-password" data-target="senha_excluir"></i>
+                            </div>
+                        </div>
+                        <div class="form-row" style="display: flex; justify-content: flex-end;">
+                             <button type="submit" name="excluir_conta" class="delete-btn">Excluir Conta Permanentemente</button>
+                        </div>
+                    </form>
+                </div>
+
             </div>
         </main>
     </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const togglePasswordIcons = document.querySelectorAll('.toggle-password');
+
+        togglePasswordIcons.forEach(icon => {
+            icon.addEventListener('click', function() {
+                const targetInputId = this.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetInputId);
+
+                if (passwordInput) {
+                    // Alterna o tipo do atributo do input
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    
+                    // Alterna a classe do ícone
+                    this.classList.toggle('fa-eye-slash');
+                }
+            });
+        });
+    });
+</script>
+
 </body>
 </html>
