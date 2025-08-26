@@ -35,12 +35,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mail->CharSet = 'UTF-8';
                 $mail->Encoding = 'base64';
 
-                // Configuração SMTP (exemplo Gmail)
+                // Configuração SMTP 
                 $mail->isSMTP();
                 $mail->Host       = 'smtp.gmail.com';
                 $mail->SMTPAuth   = true;
-                $mail->Username   = 'fredericopellegrini1996@gmail.com';   // seu Gmail
-                $mail->Password   = 'ixcj bdvo ulhf pcne';        // senha de app do Gmail
+                $mail->Username   = 'fredericopellegrini1996@gmail.com'; 
+                $mail->Password   = 'ixcj bdvo ulhf pcne';      
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port       = 587;
 

@@ -2,14 +2,12 @@
 session_start();
 require 'config.php';
 
-// 1. VERIFICA AUTENTICAÇÃO
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
 }
 $usuario_id = $_SESSION['user_id'];
 
-// 2. LÓGICA DE DATA E NAVEGAÇÃO
 $mes = isset($_GET['mes']) ? (int)$_GET['mes'] : date('n');
 $ano = isset($_GET['ano']) ? (int)$_GET['ano'] : date('Y');
 $primeiro_dia_timestamp = mktime(0, 0, 0, $mes, 1, $ano);
@@ -31,7 +29,6 @@ setlocale(LC_TIME, 'pt_BR.utf-8', 'pt_BR', 'portuguese');
 $nome_mes = strftime('%B', $primeiro_dia_timestamp);
 $hoje = date('Y-m-d');
 
-// 3. BUSCA AS REVISÕES NO BANCO DE DADOS
 $sql_revisoes = "SELECT r.data_revisao, r.feita, a.titulo, t.nome as tag_nome 
                  FROM revisoes r 
                  JOIN assuntos a ON r.assunto_id = a.id 
@@ -47,7 +44,6 @@ foreach ($revisoes_do_mes as $revisao) {
     $eventos_por_dia[$dia][] = $revisao;
 }
 
-// 4. LÓGICA DE CORES DAS TAGS
 $sql_materias = "SELECT DISTINCT t.nome FROM tags t JOIN assunto_tag at ON t.id = at.tag_id JOIN assuntos a ON at.assunto_id = a.id WHERE a.user_id = ? ORDER BY t.nome ASC";
 $stmt_materias = $pdo->prepare($sql_materias);
 $stmt_materias->execute([$usuario_id]);
@@ -62,75 +58,8 @@ foreach($materias as $i => $materia){
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/calendario.css">
     <title>Calendário - Revisa</title>
-    <style>
-        :root { 
-            --bg-darkest: #282A2C;
-            --bg-darker: #1B1C1D;
-            --bg-dark: #282A2C;
-            --text-light: #E5E7EB; 
-            --text-normal: #9CA3AF; 
-            --text-dark: #6B7280; 
-            --accent-yellow: #FBBF24; 
-            --accent-red: #F87171; 
-            --accent-green: #22C55E; 
-            --accent-blue: #3B82F6; 
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-darker); color: var(--text-light); }
-        a { color: inherit; text-decoration: none; }
-        
-        .main-grid { display: grid; grid-template-columns: 80px 1fr; height: 100vh; }
-        
-        .nav-icons { background-color: var(--bg-dark); border-right: 1px solid var(--bg-dark); padding: 24px 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
-        .nav-icons-top { display: flex; flex-direction: column; align-items: center; gap: 20px; }
-        .nav-icons a { padding: 12px; border-radius: 8px; line-height: 0; transition: background-color 0.2s; }
-        .nav-icons a:hover { background-color: #374151; }
-        .nav-icons a.active { background-color: var(--bg-darker); }
-        .nav-icons svg { width: 28px; height: 28px; }
-        .nav-icons .active svg { color: var(--accent-green); }
-
-        .calendar-container { padding: 40px; background-color: var(--bg-darker); }
-        .calendar-header { display: flex; align-items: center; justify-content: flex-start; margin-bottom: 30px; }
-        .calendar-header h1 { font-size: 1.5rem; text-transform: capitalize; color: white; margin: 0 20px; }
-        .calendar-header .nav-arrow { font-size: 1.5rem; color: var(--text-dark); transition: color 0.2s; }
-        .calendar-header .nav-arrow:hover { color: white; }
-
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); border-top: 1px solid var(--bg-dark); border-left: 1px solid var(--bg-dark); }
-        
-        .calendar-grid > div {
-            min-height: 100px;
-            padding: 8px;
-            border-right: 1px solid var(--bg-dark);
-            border-bottom: 1px solid var(--bg-dark);
-            overflow: hidden;
-            transition: background-color 0.2s;
-        }
-        
-        .weekday { font-weight: bold; color: var(--text-dark); text-align: center; min-height: auto; padding: 12px 8px; }
-        
-        .day-cell { display: flex; flex-direction: column; gap: 4px; }
-        .day-number { font-weight: 500; color: var(--text-normal); margin-bottom: 4px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-        
-        .event-pill {
-            font-size: 0.7rem;
-            font-weight: 500;
-            padding: 3px 6px;
-            border-radius: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            color: var(--bg-darkest);
-        }
-
-
-        .current-day .day-number {
-            background-color: var(--accent-blue);
-            color: white;
-            border-radius: 50%;
-            font-weight: bold;
-        }
-    </style>
 </head>
 <body>
     <div class="main-grid">

@@ -2,7 +2,6 @@
 session_start();
 require 'config.php';
 
-// Garante que só usuários logados acessem
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
@@ -11,7 +10,6 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $msg = null;
 
-// Carrega dados atuais do usuário para exibir no formulário
 $stmt_load = $pdo->prepare("SELECT nome, email, senha_hash FROM users WHERE id = ?");
 $stmt_load->execute([$user_id]);
 $usuario = $stmt_load->fetch();
@@ -22,8 +20,7 @@ if (!$usuario) {
     exit;
 }
 
-// ... (toda a lógica PHP para atualizar dados, senha, etc., permanece a mesma)
-// Atualizar nome/email
+
 if (isset($_POST['atualizar_info'])) {
     $novo_nome = trim($_POST['nome'] ?? '');
     $novo_email = trim($_POST['email'] ?? '');
@@ -45,7 +42,7 @@ if (isset($_POST['atualizar_info'])) {
         }
     }
 }
-// Atualizar senha
+
 if (isset($_POST['atualizar_senha'])) {
     $senha_atual = $_POST['senha_atual'] ?? '';
     $nova_senha = $_POST['nova_senha'] ?? '';
@@ -65,7 +62,7 @@ if (isset($_POST['atualizar_senha'])) {
         $usuario = $stmt_load->fetch();
     }
 }
-// Limpar dados de estudo
+
 if (isset($_POST['limpar_dados'])) {
     $senha_confirmacao = $_POST['senha_confirmacao'] ?? '';
     if (password_verify($senha_confirmacao, $usuario['senha_hash'])) {
@@ -85,7 +82,8 @@ if (isset($_POST['limpar_dados'])) {
         $msg = ['texto' => 'Senha incorreta. Seus dados não foram apagados.', 'tipo' => 'erro'];
     }
 }
-// Excluir Conta com verificação de senha
+
+
 if (isset($_POST['excluir_conta'])) {
     $senha_excluir = $_POST['senha_excluir'] ?? '';
     if (password_verify($senha_excluir, $usuario['senha_hash'])) {
@@ -104,56 +102,10 @@ if (isset($_POST['excluir_conta'])) {
 <head>
     <meta charset="UTF-8">
     <title>Meu Perfil - Revisa</title>
+    <link rel="stylesheet" href="css/perfil.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        :root { 
-            --bg-darkest: #282A2C; --bg-darker: #1B1C1D; --bg-dark: #282A2C;
-            --text-light: #E5E7EB; --text-normal: #9CA3AF; --text-dark: #6B7280; 
-            --accent-yellow: #FBBF24; --accent-red: #F87171; --accent-green: #22C55E; --accent-blue: #3B82F6; 
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-darker); color: var(--text-light); }
-        a { color: inherit; text-decoration: none; }
-        
-        .main-grid { display: grid; grid-template-columns: 80px 1fr; height: 100vh; }
-        .nav-icons { background-color: var(--bg-dark); border-right: 1px solid var(--bg-dark); padding: 24px 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
-        .nav-icons-top { display: flex; flex-direction: column; align-items: center; gap: 20px; }
-        .nav-icons a { padding: 12px; border-radius: 8px; line-height: 0; transition: background-color 0.2s; }
-        .nav-icons a:hover { background-color: #374151; }
-        .nav-icons a.active { background-color: var(--bg-darker); }
-        .nav-icons svg { width: 28px; height: 28px; }
-        .nav-icons .active svg { color: var(--accent-green); }
-
-        .profile-main-content { padding: 40px; background-color: var(--bg-darker); height: 100vh; overflow-y: auto; }
-        .profile-box { max-width: 600px; margin: 0 auto; }
-        .profile-box h1 { font-size: 1.8rem; margin-bottom: 30px; color: white; }
-        
-        .form-block { background-color: var(--bg-dark); padding: 25px; border-radius: 8px; margin-bottom: 20px; }
-        .form-block h2 { font-size: 1.2rem; margin-bottom: 20px; color: var(--text-light); border-bottom: 1px solid var(--bg-darker); padding-bottom: 10px; }
-        .form-block h3 { font-size: 1rem; margin-top: 25px; margin-bottom: 15px; color: var(--text-light); }
-        .form-block p { font-size: 0.9rem; color: var(--text-normal); margin-bottom: 15px; line-height: 1.5; }
-        .form-row { margin-bottom: 15px; }
-        .form-row label { display: block; font-size: 0.9rem; font-weight: 500; color: var(--text-normal); margin-bottom: 8px; }
-        .form-row input { width: 100%; background-color: var(--bg-darker); border: 1px solid var(--text-dark); color: var(--text-light); padding: 12px; border-radius: 8px; font-size: 1rem; }
-        
-        button[type="submit"] { background-color: var(--accent-blue); color: #fff; border: none; padding: 12px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
-        button[type="submit"]:hover { background-color: #2563EB; }
-
-        .delete-block { border: 1px solid rgba(248, 113, 113, 0.3); }
-        .delete-btn { background-color: var(--accent-red); }
-        .delete-btn:hover { background-color: #DC2626; }
-        .warning-btn { background-color: var(--accent-yellow); color: var(--bg-darkest); }
-        .warning-btn:hover { background-color: #D97706; }
-        
-        .feedback-msg { padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 500; }
-        .feedback-msg.sucesso { background-color: #166534; color: #DCFCE7; }
-        .feedback-msg.erro { background-color: #991B1B; color: #FEE2E2; }
-
-        /* DESTAQUE: Estilos para o container da senha e o ícone */
-        .password-container { position: relative; }
-        .password-container input { padding-right: 45px; /* Espaço para o ícone */ }
-        .password-container .toggle-password { position: absolute; top: 50%; right: 15px; transform: translateY(-50%); cursor: pointer; color: var(--text-normal); }
-
+       
     </style>
 </head>
 <body>
@@ -252,28 +204,6 @@ if (isset($_POST['excluir_conta'])) {
             </div>
         </main>
     </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const togglePasswordIcons = document.querySelectorAll('.toggle-password');
-
-        togglePasswordIcons.forEach(icon => {
-            icon.addEventListener('click', function() {
-                const targetInputId = this.getAttribute('data-target');
-                const passwordInput = document.getElementById(targetInputId);
-
-                if (passwordInput) {
-                    // Alterna o tipo do atributo do input
-                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                    passwordInput.setAttribute('type', type);
-                    
-                    // Alterna a classe do ícone
-                    this.classList.toggle('fa-eye-slash');
-                }
-            });
-        });
-    });
-</script>
-
+<script src="js/perfil.js"></script>
 </body>
 </html>
