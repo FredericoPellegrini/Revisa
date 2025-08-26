@@ -202,7 +202,7 @@ nav ul li a:hover {
     display: grid;
     grid-template-columns: 1fr;
     gap: 30px;
-    max-width: 960px; /* Reduzido para um layout mais enxuto */
+    max-width: 960px; 
     margin: 0 auto;
 }
 
@@ -216,10 +216,6 @@ nav ul li a:hover {
     background-color: #1B1C1D;
     border: 1px solid #333;
     overflow: hidden;
-}
-
-.feature-card .feature-content {
-    /* Intentionally blank */
 }
 
 .feature-card .feature-image {
@@ -236,36 +232,35 @@ nav ul li a:hover {
 
 .feature-card p {
     font-size: 15px;
-    color: #BBBBBB; /* Usando a cor diretamente */
+    color: #BBBBBB; 
     max-width: 380px;
     line-height: 1.6;
 }
 
-/* ===== REGRA ÚNICA E CORRETA PARA AS IMAGENS ===== */
 .feature-card .feature-image img {
-    height: auto; /* Mantém a proporção */
+    height: auto; 
     border-radius: 8px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
 /* ===== TAMANHOS E ROTAÇÕES ESPECÍFICAS ===== */
 
-.feature-image-1 { /* Imagem "Organize" */
-    max-width: 160px;/* <--- TAMANHO FIXO E PEQUENO */
+.feature-image-1 { 
+    max-width: 160px;
     transform: rotate(4.25deg);
 }
 
-.feature-image-2 { /* Imagem "Calendário" */
-    max-width: 280px; /* <--- TAMANHO FIXO E PEQUENO */
+.feature-image-2 { 
+    max-width: 280px; 
     transform: rotate(-4.76deg);
 }
 
-/* --- ROTACIONANDO AS IMAGENS --- */
-.feature-card:nth-child(1) .feature-image img { /* Primeiro card */
+
+.feature-card:nth-child(1) .feature-image img { 
     transform: rotate(4.25deg);
 }
 
-.feature-card:nth-child(2) .feature-image img { /* Segundo card */
+.feature-card:nth-child(2) .feature-image img { 
     transform: rotate(-4.76deg);
 }
 
@@ -311,7 +306,6 @@ footer {
     padding: 40px 0;
     text-align: center;
     border-top: 1px solid var(--border-color);
-    margin-top: ;
 }
 
 footer p {

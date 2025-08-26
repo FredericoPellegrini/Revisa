@@ -6,7 +6,7 @@ body { height: 100vh; background-color: #000; font-family: 'Ubuntu', sans-serif;
 /* --- ANIMAÇÕES --- */
 @keyframes heartbeat {
     0%, 100% { transform: scale(1); }
-    10% { transform: scale(1.15); } /* <-- PICO DA BATIDA */
+    10% { transform: scale(1.15); } 
     20% { transform: scale(1); }
     30% { transform: scale(1.1); }
     40% { transform: scale(1); }
@@ -70,24 +70,20 @@ body { height: 100vh; background-color: #000; font-family: 'Ubuntu', sans-serif;
 
 #img2 { width: 150px; height: auto; }
 
-/* Estilo base de cada partícula */
 .particle {
     position: absolute;
-    /* Posição inicial EXATA no centro do container */
     top: 50%;
     left: 50%;
-    /* O transform agora só cuida do tamanho (scale) e de um ajuste fino de centralização */
     transform: translate(-50%, -50%) scale(0);
     background-color: #D54F72;
     border-radius: 50%;
     z-index: 1;
     filter: blur(2px);
     opacity: 0;
-    animation-timing-function: linear; /* Garante velocidade constante e suave */
+    animation-timing-function: linear; 
     animation-iteration-count: infinite;
 }
 
-/* Cada partícula recebe sua própria animação de movimento */
 .particle:nth-child(1) { width: 10px; height: 10px; animation-name: move-particle-1; animation-duration: 3s; }
 .particle:nth-child(2) { width: 15px; height: 15px; animation-name: move-particle-2; animation-duration: 3s; }
 .particle:nth-child(3) { width: 8px;  height: 8px;  animation-name: move-particle-3; animation-duration: 3s; }
@@ -97,7 +93,7 @@ body { height: 100vh; background-color: #000; font-family: 'Ubuntu', sans-serif;
 .particle:nth-child(7) { width: 7px;  height: 7px;  animation-name: move-particle-7; animation-duration: 3s; }
 .particle:nth-child(8) { width: 14px; height: 14px; animation-name: move-particle-8; animation-duration: 3s; }
 
-/* --- FORMULÁRIO --- */
+
 form { display: flex; flex-direction: column; gap: 20px; align-items: center; position: relative; z-index: 3; }
 form input { width: 350px; height: 55px; padding: 15px; font-size: 18px; border-radius: 8px; border: none; outline: none; font-weight: bold; }
 form button { width: 200px; height: 55px; background-color: #D54F72; border: none; border-radius: 10px; font-size: 20px; font-weight: bold; color: white; cursor: pointer; transition: background-color 0.3s; }
