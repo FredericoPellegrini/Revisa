@@ -1,117 +1,350 @@
-body {
-    background-color: black;
-    color: white;
-    text-align: center;
+/* style.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Mulish:ital,wght@0,200..1000;1,200..1000&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Mulish:ital,wght@0,200..1000;1,200..1000&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+
+:root {
+    --background-color: #121212;
+    --surface-color: #1E1E1E;
+    --primary-color: #E0E0E0;
+    --secondary-color: #BBBBBB;
+    --accent-color: #D54F72;
+    --card-bg-dark: #1F1F1F;
+    --card-bg-light: #F5F5F5;
+    --text-dark: #121212;
+    --border-color: #333333;
+}
+
+* {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--background-color);
+    color: var(--primary-color);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header */
 header {
-    margin-top: 50px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border-color);
+    background-color: #1B1C1D;
 }
-        
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
 .logo {
-    font-size: 2rem;
-    color: #e25b7f;
+    display: flex;
+    align-items: center; 
+    gap: 12px; 
+}
+
+.logo .logo-icon {
+    height: 35px;
+    width: auto;
+}
+
+.logo .logo-name {
+    height: 24px; 
+    width: auto;
+}
+
+nav{
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    align-items: center;
+}
+
+nav ul li {
+    margin-left: 30px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: var(--primary-color);
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+nav ul li a:hover {
+    color: var(--accent-color);
+}
+
+.cta-button {
+    border: 1px solid #fff;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.cta-button:hover {
+    background-color: #fff;
+    color: #000;
+}
+
+/* Hero Section */
+.hero {
+    font-family: 'Ubuntu', sans-serif;
+    text-align: center;
+    padding: 100px 0 60px;
+    background-color: #282A2C;
+}
+
+.hero h1 {
+    font-size: 40px;
     font-weight: bold;
+    max-width: 700px;
+    margin: 0 auto 20px;
+    line-height: 1.2;
 }
 
-h2 {
-    margin-top: 10px;
-    font-weight: normal;
-}
-        
-.buttons {
-    margin-top: 30px;
+.hero p {
+    font-size: 18px;
+    color: var(--secondary-color);
+    max-width: 650px;
+    margin: 0 auto 30px;
 }
 
-.btn {
-    background-color: #e25b7f;
-    color: white;
+.hero-buttons button {
     padding: 12px 30px;
-    margin: 10px;
+    border-radius: 0px;
     border: none;
-    border-radius: 25px;
-    font-size: 1.2rem;
-    font-weight: bold;
     cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 10px;
+    transition: transform 0.2s ease, background-color 0.3s ease;
 }
 
-.prev, .next {
-    font-size: 1.5rem;   /* tamanho mais proporcional ao card */
-    padding: 8px 10px;   
+.hero-buttons .login-btn {
+    font-family: "Inter", sans-serif;
+    font-weight: bold;
+    background-color: #FFF;
+    color: #D54F72;
+    border: 1px solid #D54F72;
 }
 
-.prev { left: -25px; } /* afasta do card */
-.next { right: -25px; }
 
-
-
-@keyframes fadeIn {
-    from {opacity: 0; transform: translateY(20px);}
-    to {opacity: 1; transform: translateY(0);}
+.hero-buttons .register-btn {
+    font-family: "Inter", sans-serif;
+    font-weight: bold;
+    background-color: #D54F72; 
+    color: #FFF;
+    border: 1px solid #FFF;
 }
 
-.footer {
-    margin-top: 50px;
-    font-size: 0.8rem;
+
+.hero-buttons button:hover {
+    transform: translateY(-2px);
 }
 
-a{
-    text-decoration: none;
-    color: #e25b7f;
+.hero-image {
+    margin-top: 60px;
+    padding: 0 20px;
 }
 
-.card-slider {
-    position: relative;
-    width: 90%;
-    max-width: 600px;
-    margin: 60px auto;
+.hero-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border-color);
+}
+
+/* Features Grid Section */
+.features-grid {
+    background-color: #282A2C;
+    padding: 80px 20px;
+}
+
+.features-grid .container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+    max-width: 960px; /* Reduzido para um layout mais enxuto */
+    margin: 0 auto;
+}
+
+.feature-card {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    align-items: center;
+    padding: 40px;
+    gap: 40px;
+    border-radius: 20px;
+    background-color: #1B1C1D;
+    border: 1px solid #333;
     overflow: hidden;
 }
 
-.card {
-    background-color: #121212;
-    color: white;
-    padding: 30px 35px;
-    border-radius: 20px;
-    text-align: justify;
-    min-height: 200px;
-    display: none;
-    flex-direction: column;
-    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+.feature-card .feature-content {
+    /* Intentionally blank */
 }
 
-.card.active {
+.feature-card .feature-image {
     display: flex;
-    animation: fadeIn 0.5s ease-in-out;
+    justify-content: center;
+    align-items: center;
 }
 
-.card h3 {
-    text-align: center;
+.feature-card h2 {
+    font-size: 26px;
+    font-weight: 700;
     margin-bottom: 15px;
-    color: #e25b7f;
-    font-size: 1.6rem;
-    text-transform: capitalize;
 }
 
-.card p {
-    font-size: 1rem;
-    line-height: 1.5;
+.feature-card p {
+    font-size: 15px;
+    color: #BBBBBB; /* Usando a cor diretamente */
+    max-width: 380px;
+    line-height: 1.6;
 }
 
-/* Setas */
-.prev, .next {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(226,91,127,0.8);
-    color: white;
-    border: none;
-    padding: 10px 12px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 1.2rem;
+/* ===== REGRA ÚNICA E CORRETA PARA AS IMAGENS ===== */
+.feature-card .feature-image img {
+    height: auto; /* Mantém a proporção */
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== TAMANHOS E ROTAÇÕES ESPECÍFICAS ===== */
+
+.feature-image-1 { /* Imagem "Organize" */
+    max-width: 160px;/* <--- TAMANHO FIXO E PEQUENO */
+    transform: rotate(4.25deg);
+}
+
+.feature-image-2 { /* Imagem "Calendário" */
+    max-width: 280px; /* <--- TAMANHO FIXO E PEQUENO */
+    transform: rotate(-4.76deg);
+}
+
+/* --- ROTACIONANDO AS IMAGENS --- */
+.feature-card:nth-child(1) .feature-image img { /* Primeiro card */
+    transform: rotate(4.25deg);
+}
+
+.feature-card:nth-child(2) .feature-image img { /* Segundo card */
+    transform: rotate(-4.76deg);
+}
+
+/* Workflow Section */
+.workflow {
+    padding: 80px 0;
+    text-align: center;
+    background-color: #282A2C;
+}
+
+.workflow h2 {
+    font-size: 36px;
+    margin-bottom: 50px;
+}
+
+.workflow-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    text-align: left;
+}
+
+.workflow-item {
+    background-color: var(--surface-color);
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.workflow-item h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+.workflow-item p {
+    color: var(--secondary-color);
+    font-size: 15px;
+}
+
+/* Footer */
+footer {
+    padding: 40px 0;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+    margin-top: ;
+}
+
+footer p {
+    color: var(--secondary-color);
+    font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .features-grid .container {
+        grid-template-columns: 1fr;
+    }
+    .workflow-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    header .container {
+        flex-direction: column;
+    }
+    nav ul {
+        margin-top: 20px;
+        padding-left: 0;
+    }
+    nav ul li {
+        margin: 0 10px;
+    }
+    .hero h1 {
+        font-size: 36px;
+    }
+    .hero p {
+        font-size: 16px;
+    }
+    .workflow-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    nav ul {
+        flex-direction: column;
+    }
+    nav ul li {
+        margin: 10px 0;
+    }
+    .hero-buttons {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .hero-buttons button {
+        width: 80%;
+        margin: 5px 0;
+    }
 }

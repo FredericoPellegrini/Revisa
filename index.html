@@ -3,82 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/telasinicias.css">
+    <title>Revisa - Organize seus estudos</title>
     <link rel="stylesheet" href="css/index.css">
-
-    <title>Revisa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
 </head>
 <body>
-
     <header>
-
-    <div class="container">
-            <div class="logo-container">
-
-
-                <div id="logo">
-                    <img src="images/logo.png" alt="Logo" id="img1">
-                    <img src="images/nome.png" alt="Nome Revisa" id="img2">
-                </div>
+        <div class="container">
+            <div class="logo">
+                <img src="images/logo.png" alt="Ícone de cérebro do Revisa" class="logo-icon"> 
+                <img src="images/nome.png" alt="O texto Revisa" class="logo-name">
             </div>
-        </div>        
-
-        <h2>ORGANIZE SEUS ESTUDOS COM A TÉCNICA<br>DE REPETIÇÃO ESPAÇADA</h2>
-        <div class="buttons">
-            <a href="login.php" class="btn">ENTRAR</a>
-            <a href="register.php" class="btn">CADASTRE-SE</a>
+            <nav>
+                <ul>
+                    <li><a href="#">Desenvolvimento</a></li>
+                    <li><a href="#">Recursos</a></li>
+                    <li><a href="#">Entrar</a></li>
+                    <li><a href="#" class="cta-button">Crie uma conta grátis</a></li>
+                </ul>
+            </nav>
         </div>
     </header>
 
-<section class="card-slider">
-    <div class="card active">
-        <h3>MEMÓRIA NO TEMPO CERTO</h3>
-        <p>Sua memória funciona como um músculo: se não for estimulada na hora certa, perde força. O Revisa aplica a técnica da repetição espaçada para reforçar seus estudos nos momentos exatos em que o cérebro começaria a esquecer.</p>
-    </div>
-    <div class="card">
-        <h3>ADEUS ESQUECIMENTO</h3>
-        <p>Quantas vezes você já estudou algo com dedicação e, pouco tempo depois, parecia que nunca tinha visto o assunto? O Revisa resolve isso calculando automaticamente o melhor intervalo de revisão para cada matéria.</p>
-    </div>
-    <div class="card">
-        <h3>ESTUDE COMO OS CAMPEÕES</h3>
-        <p>Nos grandes exames, não basta estudar muito, é preciso estudar de forma inteligente. O Revisa organiza suas revisões aplicando o método científico da repetição espaçada.</p>
-    </div>
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Organize seus estudos de forma eficiente.</h1>
+                <p>Otimize seu aprendizado com o Revisa. Revise de forma inteligente e sempre, revisando cada conteúdo exatamente quando seu cérebro está prestes a esquecer.</p>
+                <div class="hero-buttons">
+                    <button class="login-btn">LOGIN</button>
+                    <button class="register-btn">CADASTRE-SE</button>
+                </div>
+                <div class="hero-image">
+                    <img src="images/image 1.png" alt="Interface da plataforma Revisa mostrando uma lista de tarefas de estudo.">
+                </div>
+            </div>
+        </section>
 
-    <!-- Botões de navegação -->
-    <button class="prev">&#10094;</button> <!-- seta para esquerda -->
-    <button class="next">&#10095;</button> <!-- seta para direita -->
-</section>
+        <section class="features-grid">
+            <div class="container">
+                <div class="feature-card">
+                    <div class="feature-content">
+                        <h2>Organize seus estudos</h2>
+                        <p>Cadastre matérias e assuntos com tags personalizadas e tenha uma visão clara do que revisar a cada dia, estruturando seu aprendizado de forma simples e eficiente.</p>
+                    </div>
+                    <div class="feature-image">
+                        <img src="images/image 2.png" alt="Interface de organização de estudos" class="feature-image-1">
+                    </div>
+                </div>
 
+                <div class="feature-card">
+                    <div class="feature-content">
+                        <h2>Visualizações eficazes do calendário</h2>
+                        <p>Visualize suas revisões distribuídas ao longo das semanas em um calendário interativo e deixe que a curva de esquecimento para planejar automaticamente seu ritmo de estudos.</p>
+                    </div>
+                    <div class="feature-image">
+                        <img src="images/image 3.png" alt="Interface do calendário" class="feature-image-2">
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    <div class="footer">
-        DESENVOLVIDO POR <a href="https://github.com/FredericoPellegrini">FREDERICO PELLEGRINI</a>
-    </div>
+        <section class="workflow">
+            <div class="container">
+                <h2>Recursos e Workflow</h2>
+                <div class="workflow-grid">
+                    <div class="workflow-item">
+                        <h3>Adicione seus estudos</h3>
+                        <p>Cadastre novos conteúdos de forma rápida e mantenha seu progresso sempre organizado.</p>
+                    </div>
+                    <div class="workflow-item">
+                        <h3>Use tags inteligentes</h3>
+                        <p>Classifique matérias e assuntos usando a personalização de tags para encontrar o que precisa facilmente.</p>
+                    </div>
+                    <div class="workflow-item">
+                        <h3>Cálculo automático de revisões</h3>
+                        <p>O sistema gera os dias de revisão com base na curva de esquecimento e em intervalos estratégicos pré-definidos.</p>
+                    </div>
+                    <div class="workflow-item">
+                        <h3>Curva de esquecimento</h3>
+                        <p>A metodologia utilizada ajuda a fixar o conteúdo a longo prazo, revisando no momento certo.</p>
+                    </div>
+                    <div class="workflow-item">
+                        <h3>Visualize no calendário</h3>
+                        <p>Veja suas revisões distribuídas ao longo dos dias e semanas em um calendário interativo.</p>
+                    </div>
+                    <div class="workflow-item">
+                        <h3>Recomece quando quiser</h3>
+                        <p>Apague tudo e comece um novo projeto de estudos sempre que precisar, com apenas um clique.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 
-<script>
-    const cards = document.querySelectorAll(".card-slider .card");
-    let current = 0;
-
-    function showCard(index) {
-        cards.forEach((c, i) => c.classList.toggle("active", i === index));
-    }
-
-    document.querySelector(".next").addEventListener("click", () => {
-        current = (current + 1) % cards.length;
-        showCard(current);
-    });
-
-    document.querySelector(".prev").addEventListener("click", () => {
-        current = (current - 1 + cards.length) % cards.length;
-        showCard(current);
-    });
-
-    setInterval(() => {
-        current = (current + 1) % cards.length;
-        showCard(current);
-    }, 5000);
-</script>
-
-
-
+    <footer>
+        <div class="container">
+            <p>Desenvolvido por Frederico Pellegrini</p>
+        </div>
+    </footer>
+    <script>
+      feather.replace()
+    </script>
 </body>
 </html>
